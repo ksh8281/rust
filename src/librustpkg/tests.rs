@@ -506,6 +506,7 @@ fn output_file_name(workspace: &Path, short_name: ~str) -> Path {
                                                                          os::EXE_SUFFIX))
 }
 
+#[cfg(target_os = "linux")]
 fn touch_source_file(workspace: &Path, pkgid: &PkgId) {
     use conditions::bad_path::cond;
     let pkg_src_dir = workspace.join_many([~"src", pkgid.to_str()]);
@@ -517,6 +518,24 @@ fn touch_source_file(workspace: &Path, pkgid: &PkgId) {
             // n.b. Bumps time up by 2 seconds to get around granularity issues
             if run::process_output("touch", [~"--date",
                                              ~"+2 seconds",
+                                             p.as_str().unwrap().to_owned()]).status != 0 {
+                let _ = cond.raise((pkg_src_dir.clone(), ~"Bad path"));
+            }
+        }
+    }
+}
+
+#[cfg(not(target_os = "linux"))]
+fn touch_source_file(workspace: &Path, pkgid: &PkgId) {
+    use conditions::bad_path::cond;
+    let pkg_src_dir = workspace.join_many([~"src", pkgid.to_str()]);
+    let contents = os::list_dir_path(&pkg_src_dir);
+    for p in contents.iter() {
+        if p.extension_str() == Some("rs") {
+            // should be able to do this w/o a process
+            // FIXME (#9639): This needs to handle non-utf8 paths
+            // n.b. Bumps time up by 2 seconds to get around granularity issues
+            if run::process_output("touch", [~"-A02",
                                              p.as_str().unwrap().to_owned()]).status != 0 {
                 let _ = cond.raise((pkg_src_dir.clone(), ~"Bad path"));
             }
