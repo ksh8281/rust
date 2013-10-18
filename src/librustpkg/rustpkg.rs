@@ -543,7 +543,7 @@ impl CtxMethods for BuildContext {
 
         let mut installed_files = ~[];
         let mut inputs = ~[];
-        let mut build_inputs = ~[]; // NOTE: sigh
+        let mut build_inputs = ~[];
 
         debug2!("Installing package source: {}", pkg_src.to_str());
 
