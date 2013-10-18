@@ -997,7 +997,7 @@ pub fn link_args(sess: Session,
     // however, the Linux linker will happily overwrite a read-only file.
     // We should be consistent.
     let obj_is_writeable = is_writeable(obj_filename);
-    let out_is_writeable = is_writeable(output);
+    let out_is_writeable = is_writeable(&output);
     if !out_is_writeable {
         sess.fatal(format!("Output file {} is not writeable -- check its permissions.",
                            output.display()));
